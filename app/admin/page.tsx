@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 import { CartesianGrid } from "recharts";
 import {
   BarChart,
@@ -20,6 +21,13 @@ import {
 } from "lucide-react";
 
 export default function AdminPage() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
   const today = new Date().toLocaleDateString("id-ID", {
     weekday: "long",
     day: "numeric",
