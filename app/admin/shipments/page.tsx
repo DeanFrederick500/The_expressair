@@ -49,6 +49,8 @@ export default function ShipmentsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [showFilter, setShowFilter] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [flightError, setFlightError] = useState("");
   const [editFlightError, setEditFlightError] = useState("");
 
@@ -66,6 +68,19 @@ export default function ShipmentsPage() {
     const matchStatus = statusFilter ? s.status === statusFilter : true;
     return matchSearch && matchStatus;
   });
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+
+  const paginatedData = filtered.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter]);
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
@@ -170,7 +185,7 @@ export default function ShipmentsPage() {
           </thead>
 
           <tbody>
-            {filtered.map((s) => (
+            {paginatedData.map((s) => (
               <tr key={s.id} className="border-t">
                 <td className="p-3 text-blue-600">{s.awb}</td>
                 <td className="p-3">{s.asal}</td>
@@ -216,6 +231,43 @@ export default function ShipmentsPage() {
           </tbody>
         </table>
       </div>
+
+      {filtered.length > 0 && (
+        <div className="flex items-center justify-center gap-2 mt-4">
+
+          <button
+            className="px-3 py-1 border rounded"
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+          >
+            Prev
+          </button>
+
+          {Array.from({ length: totalPages }).map((_, i) => {
+            const page = i + 1;
+
+            return (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`px-3 py-1 border rounded ${currentPage === page ? "bg-blue-600 text-white" : ""
+                  }`}
+              >
+                {page}
+              </button>
+            );
+          })}
+
+          <button
+            className="px-3 py-1 border rounded"
+            onClick={() =>
+              setCurrentPage(p => Math.min(totalPages, p + 1))
+            }
+          >
+            Next
+          </button>
+
+        </div>
+      )}
 
       {/* MODAL TAMBAH */}
       {open && (

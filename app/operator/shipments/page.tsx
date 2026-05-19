@@ -28,7 +28,7 @@ export default function ShipmentsPage() {
     if (saved) {
       setShipments(JSON.parse(saved));
     } else {
-        const initial = [
+      const initial = [
         { id: 1, awb: "AWB001234567", asal: "Jakarta (CGK)", tujuan: "Singapore (SIN)", berat: 25.5, flight: "EA-101", status: "In Transit" },
         { id: 2, awb: "AWB002345678", asal: "Surabaya (SUB)", tujuan: "Bangkok (BKK)", berat: 18.2, flight: "EA-205", status: "Received" },
         { id: 3, awb: "AWB003456789", asal: "Bali (DPS)", tujuan: "Tokyo (NRT)", berat: 32.8, flight: "EA-312", status: "Delivered" },
@@ -45,9 +45,14 @@ export default function ShipmentsPage() {
   const [editData, setEditData] = useState<any>(null);
   const [newStatus, setNewStatus] = useState("");
   const [deleteData, setDeleteData] = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter]);
   const [showFilter, setShowFilter] = useState(false);
   const [flightError, setFlightError] = useState("");
   const [editFlightError, setEditFlightError] = useState("");
@@ -66,6 +71,14 @@ export default function ShipmentsPage() {
     const matchStatus = statusFilter ? s.status === statusFilter : true;
     return matchSearch && matchStatus;
   });
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+
+  const paginatedData = filtered.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
@@ -170,7 +183,7 @@ export default function ShipmentsPage() {
           </thead>
 
           <tbody>
-            {filtered.map((s) => (
+            {paginatedData.map((s) => (
               <tr key={s.id} className="border-t">
                 <td className="p-3 text-blue-600">{s.awb}</td>
                 <td className="p-3">{s.asal}</td>
@@ -216,6 +229,42 @@ export default function ShipmentsPage() {
           </tbody>
         </table>
       </div>
+      {filtered.length > 0 && (
+        <div className="flex items-center justify-center gap-2 mt-4">
+
+          <button
+            className="px-3 py-1 border rounded"
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+          >
+            Prev
+          </button>
+
+          {Array.from({ length: totalPages }).map((_, i) => {
+            const page = i + 1;
+
+            return (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`px-3 py-1 border rounded ${currentPage === page ? "bg-blue-600 text-white" : ""
+                  }`}
+              >
+                {page}
+              </button>
+            );
+          })}
+
+          <button
+            className="px-3 py-1 border rounded"
+            onClick={() =>
+              setCurrentPage(p => Math.min(totalPages, p + 1))
+            }
+          >
+            Next
+          </button>
+
+        </div>
+      )}
 
       {/* MODAL TAMBAH */}
       {open && (
