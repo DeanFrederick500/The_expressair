@@ -32,6 +32,12 @@ export default function FlightsPage() {
 
     if (saved) {
       setFlights(JSON.parse(saved));
+    } else {
+      localStorage.setItem(
+        "flights",
+        JSON.stringify(defaultFlights)
+      );
+      setFlights(defaultFlights);
     }
   }, []);
 
