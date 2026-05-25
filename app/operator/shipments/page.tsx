@@ -23,37 +23,34 @@ export default function ShipmentsPage() {
   const [shipments, setShipments] = useState<any[]>([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem("shipments");
+    fetch("/api/shipments")
+      .then((res) => res.json())
+      .then((data) => {
 
-    if (saved) {
-      setShipments(JSON.parse(saved));
-    } else {
-      const initial = [
-        { id: 1, awb: "AWB001234567", asal: "Jakarta (CGK)", tujuan: "Singapore (SIN)", berat: 25.5, flight: "EA-101", status: "In Transit" },
-        { id: 2, awb: "AWB002345678", asal: "Surabaya (SUB)", tujuan: "Bangkok (BKK)", berat: 18.2, flight: "EA-205", status: "Received" },
-        { id: 3, awb: "AWB002456789", asal: "Bali (DPS)", tujuan: "Tokyo (NRT)", berat: 32.8, flight: "EA-312", status: "Delivered" },
-        { id: 4, awb: "AWB001456789", asal: "Jakarta (CGK)", tujuan: "Hong Kong (HKG)", berat: 100.5, flight: "EA-408", status: "In Transit" },
-        { id: 5, awb: "AWB004456789", asal: "Medan (KNO)", tujuan: "Singapore (SIN)", berat: 32.8, flight: "EA-321", status: "Delivered" },
-      ];
+        const formatted = data.map((item: any) => ({
+          id: item.id,
+          awb: item.awb,
+          asal: item.origin,
+          tujuan: item.destination,
+          berat: item.weight,
+          flight: item.flight_number,
+          status: item.status,
+        }));
 
-      setShipments(initial);
-      localStorage.setItem("shipments", JSON.stringify(initial));
-    }
+        setShipments(formatted);
+      });
   }, []);
 
   const [open, setOpen] = useState(false);
   const [editData, setEditData] = useState<any>(null);
   const [newStatus, setNewStatus] = useState("");
   const [deleteData, setDeleteData] = useState<any>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, statusFilter]);
   const [showFilter, setShowFilter] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [flightError, setFlightError] = useState("");
   const [editFlightError, setEditFlightError] = useState("");
 
@@ -78,6 +75,7 @@ export default function ShipmentsPage() {
     const matchStatus = statusFilter ? s.status === statusFilter : true;
     return matchSearch && matchStatus;
   });
+
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -87,7 +85,11 @@ export default function ShipmentsPage() {
     startIndex + itemsPerPage
   );
 
-  const handleSubmit = (e: any) => {
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter]);
+
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
 
     if (!flights.includes(form.flight)) {
@@ -98,24 +100,53 @@ export default function ShipmentsPage() {
     setFlightError("");
 
     const newData = {
-      id: Date.now(),
       awb: generateAWB(),
-      ...form,
       berat: Number(form.berat),
+      asal: form.asal,
+      tujuan: form.tujuan,
+      flight: form.flight,
       status: "Received",
     };
 
-    const updated = [...shipments, newData];
-    setShipments(updated);
-    localStorage.setItem("shipments", JSON.stringify(updated));
-    setOpen(false);
-
-    setForm({
-      asal: "",
-      tujuan: "",
-      berat: "",
-      flight: "",
+    const response = await fetch("/api/shipments", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newData),
     });
+
+    if (response.ok) {
+
+      const refreshed = await fetch("/api/shipments");
+      const data = await refreshed.json();
+
+      const formatted = data.map((item: any) => ({
+        id: item.id,
+        awb: item.awb,
+        asal: item.origin,
+        tujuan: item.destination,
+        berat: item.weight,
+        flight: item.flight_number,
+        status: item.status,
+      }));
+
+      setShipments(formatted);
+
+      setOpen(false);
+
+      setForm({
+        asal: "",
+        tujuan: "",
+        berat: "",
+        flight: "",
+      });
+
+    } else {
+
+      alert("Gagal menambahkan shipment");
+
+    }
   };
 
   return (
@@ -236,6 +267,7 @@ export default function ShipmentsPage() {
           </tbody>
         </table>
       </div>
+
       {filtered.length > 0 && (
         <div className="flex items-center justify-center gap-2 mt-4">
 
@@ -287,6 +319,8 @@ export default function ShipmentsPage() {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+
+
 
               {/* ASAL */}
               <div>
@@ -373,6 +407,7 @@ export default function ShipmentsPage() {
             <div className="space-y-4">
 
 
+
               <div>
                 <label className="text-sm">Asal</label>
                 <input
@@ -441,7 +476,7 @@ export default function ShipmentsPage() {
                 </button>
 
                 <button
-                  onClick={() => {
+                  onClick={async () => {
 
                     if (!flights.includes(editData.flight)) {
                       setEditFlightError("Flight tidak ditemukan");
@@ -450,17 +485,45 @@ export default function ShipmentsPage() {
 
                     setEditFlightError("");
 
-                    setShipments(prev => {
-                      const updated = prev.map(s =>
-                        s.id === editData.id ? editData : s
-                      );
-
-                      localStorage.setItem("shipments", JSON.stringify(updated));
-
-                      return updated;
+                    const response = await fetch("/api/shipments", {
+                      method: "PUT",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        id: editData.id,
+                        asal: editData.asal,
+                        tujuan: editData.tujuan,
+                        berat: Number(editData.berat),
+                        flight: editData.flight,
+                        status: editData.status,
+                      }),
                     });
 
-                    setEditData(null);
+                    if (response.ok) {
+
+                      const refreshed = await fetch("/api/shipments");
+                      const data = await refreshed.json();
+
+                      const formatted = data.map((item: any) => ({
+                        id: item.id,
+                        awb: item.awb,
+                        asal: item.origin,
+                        tujuan: item.destination,
+                        berat: item.weight,
+                        flight: item.flight_number,
+                        status: item.status,
+                      }));
+
+                      setShipments(formatted);
+
+                      setEditData(null);
+
+                    } else {
+
+                      alert("Gagal update shipment");
+
+                    }
                   }}
                   className="bg-blue-600 text-white py-2 rounded-lg"
                 >
@@ -495,18 +558,42 @@ export default function ShipmentsPage() {
               </button>
 
               <button
-                onClick={() => {
-                  const updated = shipments.filter(
-                    item => item.id !== deleteData.id
-                  );
+                onClick={async () => {
 
-                  setShipments(updated);
-                  localStorage.setItem(
-                    "shipments",
-                    JSON.stringify(updated)
-                  );
+                  const response = await fetch("/api/shipments", {
+                    method: "DELETE",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      id: deleteData.id,
+                    }),
+                  });
 
-                  setDeleteData(null);
+                  if (response.ok) {
+
+                    const refreshed = await fetch("/api/shipments");
+                    const data = await refreshed.json();
+
+                    const formatted = data.map((item: any) => ({
+                      id: item.id,
+                      awb: item.awb,
+                      asal: item.origin,
+                      tujuan: item.destination,
+                      berat: item.weight,
+                      flight: item.flight_number,
+                      status: item.status,
+                    }));
+
+                    setShipments(formatted);
+
+                    setDeleteData(null);
+
+                  } else {
+
+                    alert("Gagal menghapus shipment");
+
+                  }
                 }}
                 className="bg-blue-700 text-white py-3 rounded-xl"
               >
