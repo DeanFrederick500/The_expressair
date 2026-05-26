@@ -7,57 +7,48 @@ import { Plus, X, Trash2, Search, Filter, Eye, Pencil } from "lucide-react";
 export default function ShipmentsPage() {
   const router = useRouter();
 
-  const flights = [
-    "EA-101",
-    "EA-205",
-    "EA-312",
-    "EA-408",
-    "EA-156",
-    "EA-523",
-    "EA-777",
-    "EA-889",
-    "EA-990",
-    "EA-321",
-  ];
-
+  const [flights, setFlights] = useState<{ flight_number: string; status: string }[]>([]);
+  const [vehicles, setVehicles] = useState<string[]>([]);
   const [shipments, setShipments] = useState<any[]>([]);
 
+  const loadShipments = async () => {
+    try {
+      const response = await fetch("/api/shipments");
+      const data = await response.json();
+      const formatted = data
+        .filter((item: any) => !isExcludedShipment(item))
+        .map(formatShipment);
+      setShipments(formatted);
+    } catch (error) {
+      setShipments([]);
+    }
+  };
+
   useEffect(() => {
-    fetch("/api/shipments")
+    loadShipments();
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/flights")
       .then((res) => res.json())
       .then((data) => {
+        if (Array.isArray(data)) {
+          setFlights(data);
+        }
+      })
+      .catch(() => {
+        setFlights([]);
+      });
 
-        const formatted = data.map((item: any) => ({
-          id: item.id,
-          awb: item.awb,
-
-          tanggal: item.shipping_date,
-
-          pengirim: item.sender_name,
-          penerima: item.receiver_name,
-          telepon: item.phone_number,
-
-          asal: item.origin,
-          tujuan: item.destination,
-
-          jenisBarang: item.item_type,
-
-          berat: item.weight,
-
-          harga: item.shipping_cost,
-
-          kendaraan: item.vehicle_type,
-
-          jenisPengiriman: item.shipping_type,
-
-          flight: item.flight_number,
-
-          status: item.status,
-
-          deskripsi: item.description,
-        }));
-
-        setShipments(formatted);
+    fetch("/api/vehicles")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setVehicles(data);
+        }
+      })
+      .catch(() => {
+        setVehicles([]);
       });
   }, []);
 
@@ -73,6 +64,11 @@ export default function ShipmentsPage() {
   const itemsPerPage = 10;
   const [flightError, setFlightError] = useState("");
   const [editFlightError, setEditFlightError] = useState("");
+
+  const getFlightStatus = (flightNumber: string) => {
+    const flight = flights.find((f) => f.flight_number === flightNumber);
+    return flight?.status || "Received";
+  };
 
   const [form, setForm] = useState({
     tanggal: "",
@@ -98,9 +94,56 @@ export default function ShipmentsPage() {
     return `AWB${randomNumber}`;
   };
 
+  const excludedShipmentDescriptions = new Set([
+    "Logistik medis darurat",
+    "Baterai kendaraan listrik",
+    "Produk fashion premium",
+  ]);
+
+  const excludedShipmentTypes = new Set([
+    "Emergency Cargo",
+    "Hazardous Cargo",
+    "Fashion Cargo",
+  ]);
+
+  const isExcludedShipment = (item: any) =>
+    excludedShipmentDescriptions.has(item.item_description) ||
+    excludedShipmentTypes.has(item.item_type);
+
+  const formatShipment = (item: any) => ({
+    id: item.id,
+    awb: item.awb_number,
+    tanggal: item.shipment_date,
+    pengirim: item.sender_name,
+    penerima: item.receiver_name,
+    telepon: item.phone_number,
+    asal: item.origin_city,
+    tujuan: item.destination_city,
+    jenisBarang: item.item_type,
+    berat: item.weight,
+    harga: item.shipping_price,
+    kendaraan: item.vehicle_name,
+    jenisPengiriman: item.shipping_type,
+    flight: item.flight_number,
+    status: item.shipment_status,
+    deskripsi: item.item_description,
+    item_name: item.item_name,
+    quantity: item.quantity,
+    item_status: item.item_status,
+    admin_fee: item.admin_fee,
+    total_price: item.total_price,
+    payment_method: item.payment_method,
+    payment_date: item.payment_date,
+    transaction_status: item.transaction_status,
+  });
+
   // FILTER
   const filtered = shipments.filter(s => {
-    const matchSearch = s.awb.toLowerCase().includes(search.toLowerCase());
+    const searchText = search.toLowerCase();
+    const matchSearch =
+      s.awb.toLowerCase().includes(searchText) ||
+      s.penerima.toLowerCase().includes(searchText) ||
+      s.pengirim.toLowerCase().includes(searchText);
     const matchStatus = statusFilter ? s.status === statusFilter : true;
     return matchSearch && matchStatus;
   });
@@ -121,7 +164,8 @@ export default function ShipmentsPage() {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    if (!flights.includes(form.flight)) {
+    const selectedFlight = flights.find((f) => f.flight_number === form.flight);
+    if (!selectedFlight) {
       setFlightError("Flight tidak ditemukan");
       return;
     }
@@ -129,21 +173,42 @@ export default function ShipmentsPage() {
     setFlightError("");
 
     const newData = {
-      awb: generateAWB(),
-      shipping_date: form.tanggal,
+
+      awb_number: generateAWB(),
+
+      shipment_date: form.tanggal,
+
       sender_name: form.pengirim,
       receiver_name: form.penerima,
       phone_number: form.telepon,
-      origin: form.asal,
-      destination: form.tujuan,
-      item_type: form.jenisBarang,
-      weight: Number(form.berat),
-      shipping_cost: Number(form.harga),
-      vehicle_type: form.kendaraan,
+
+      origin_city: form.asal,
+      destination_city: form.tujuan,
+
       shipping_type: form.jenisPengiriman,
+      shipment_status: selectedFlight.status || "Received",
+
+      vehicle_name: form.kendaraan,
       flight_number: form.flight,
-      description: form.deskripsi,
-      status: "Received",
+
+      item_name: form.jenisBarang,
+      item_type: form.jenisBarang,
+      item_description: form.deskripsi,
+
+      quantity: 1,
+      weight: Number(form.berat),
+
+      item_status: "safe",
+
+      shipping_price: Number(form.harga),
+      admin_fee: 5000,
+      total_price: Number(form.harga) + 5000,
+
+      payment_method: "Transfer Bank",
+      payment_date: form.tanggal,
+
+      transaction_status: "paid",
+
     };
 
     const response = await fetch("/api/shipments", {
@@ -155,31 +220,7 @@ export default function ShipmentsPage() {
     });
 
     if (response.ok) {
-
-      const refreshed = await fetch("/api/shipments");
-      const data = await refreshed.json();
-
-      const formatted = data.map((item: any) => ({
-        id: item.id,
-        awb: item.awb,
-        tanggal: item.shipping_date,
-        pengirim: item.sender_name,
-        penerima: item.receiver_name,
-        telepon: item.phone_number,
-        asal: item.origin,
-        tujuan: item.destination,
-        jenisBarang: item.item_type,
-        berat: item.weight,
-        harga: item.shipping_cost,
-        kendaraan: item.vehicle_type,
-        jenisPengiriman: item.shipping_type,
-        flight: item.flight_number,
-        status: item.status,
-        deskripsi: item.description,
-      }));
-
-      setShipments(formatted);
-
+      await loadShipments();
       setOpen(false);
 
       setForm({
@@ -209,7 +250,11 @@ export default function ShipmentsPage() {
 
     } else {
 
-      alert("Gagal menambahkan shipment");
+      const errorData = await response.json();
+
+      console.log(errorData);
+
+      alert(errorData.error || "Gagal menambahkan shipment");
 
     }
   };
@@ -282,21 +327,18 @@ export default function ShipmentsPage() {
               <th className="p-3 text-left">Telepon</th>
               <th className="p-3 text-left">Asal</th>
               <th className="p-3 text-left">Tujuan</th>
-              <th className="p-3 text-left">Jenis Barang</th>
-              <th className="p-3 text-left">Berat</th>
               <th className="p-3 text-left">Harga</th>
               <th className="p-3 text-left">Jenis Kendaraan</th>
               <th className="p-3 text-left">Jenis Pengiriman</th>
               <th className="p-3 text-left">No. Penerbangan</th>
               <th className="p-3 text-left">Status</th>
-              <th className="p-3 text-left">Deskripsi</th>
               <th className="p-3 text-left">Aksi</th>
             </tr>
           </thead>
 
           <tbody>
-            {paginatedData.map((s) => (
-              <tr key={s.id} className="border-t">
+            {paginatedData.map((s, index) => (
+              <tr key={`${s.id}-${index}`} className="border-t">
                 <td className="p-3 text-blue-600">{s.awb}</td>
 
                 <td className="p-3">{s.tanggal}</td>
@@ -311,10 +353,6 @@ export default function ShipmentsPage() {
 
                 <td className="p-3">{s.tujuan}</td>
 
-                <td className="p-3">{s.jenisBarang}</td>
-
-                <td className="p-3">{s.berat} kg</td>
-
                 <td className="p-3">Rp {s.harga}</td>
 
                 <td className="p-3">{s.kendaraan}</td>
@@ -328,8 +366,6 @@ export default function ShipmentsPage() {
                   {s.status === "Received" && <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs">Received</span>}
                   {s.status === "Delivered" && <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs">Delivered</span>}
                 </td>
-
-                <td className="p-3">{s.deskripsi}</td>
 
                 <td className="p-3">
                   <div className="flex items-center gap-3">
@@ -506,14 +542,21 @@ export default function ShipmentsPage() {
               <div>
                 <label className="text-sm">Jenis Kendaraan</label>
 
-                <input
+                <select
                   required
                   className="w-full border rounded-lg px-3 py-2 mt-1"
                   value={form.kendaraan}
                   onChange={(e) =>
                     setForm({ ...form, kendaraan: e.target.value })
                   }
-                />
+                >
+                  <option value="">Pilih Kendaraan</option>
+                  {vehicles.map((vehicle) => (
+                    <option key={vehicle} value={vehicle}>
+                      {vehicle}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* JENIS PENGIRIMAN */}
@@ -575,15 +618,22 @@ export default function ShipmentsPage() {
               {/* FLIGHT */}
               <div>
                 <label className="text-sm">No. Penerbangan</label>
-                <input
+                <select
                   required
-                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${flightError ? "border-red-500" : ""}`}
                   value={form.flight}
                   onChange={(e) => {
                     setForm({ ...form, flight: e.target.value });
                     setFlightError("");
                   }}
-                />
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${flightError ? "border-red-500" : ""}`}
+                >
+                  <option value="">Pilih No. Penerbangan</option>
+                  {flights.map((flight) => (
+                    <option key={flight.flight_number} value={flight.flight_number}>
+                      {flight.flight_number}
+                    </option>
+                  ))}
+                </select>
 
                 {flightError && (
                   <p className="text-red-500 text-xs mt-1">
@@ -647,6 +697,23 @@ export default function ShipmentsPage() {
                     setEditData({
                       ...editData,
                       jenisBarang: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+
+              {/* BERAT */}
+              <div>
+                <label className="text-sm">Berat (kg)</label>
+
+                <input
+                  type="number"
+                  value={editData.berat || ""}
+                  onChange={(e) =>
+                    setEditData({
+                      ...editData,
+                      berat: e.target.value,
                     })
                   }
                   className="w-full border rounded-lg px-3 py-2"
@@ -725,25 +792,27 @@ export default function ShipmentsPage() {
               </div>
 
               <div>
-                <label className="text-sm">Berat (kg)</label>
-                <input
-                  type="number"
-                  value={editData.berat}
-                  onChange={(e) => setEditData({ ...editData, berat: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
-                />
-              </div>
-
-              <div>
                 <label className="text-sm">No. Penerbangan</label>
-                <input
-                  value={editData.flight}
+                <select
+                  value={editData.flight || ""}
                   onChange={(e) => {
-                    setEditData({ ...editData, flight: e.target.value });
+                    const selectedFlight = flights.find((f) => f.flight_number === e.target.value);
+                    setEditData({
+                      ...editData,
+                      flight: e.target.value,
+                      status: selectedFlight ? selectedFlight.status : editData.status,
+                    });
                     setEditFlightError("");
                   }}
                   className={`w-full border rounded-lg px-3 py-2 ${editFlightError ? "border-red-500" : ""}`}
-                />
+                >
+                  <option value="">Pilih No. Penerbangan</option>
+                  {flights.map((flight) => (
+                    <option key={flight.flight_number} value={flight.flight_number}>
+                      {flight.flight_number}
+                    </option>
+                  ))}
+                </select>
 
                 {editFlightError && (
                   <p className="text-red-500 text-xs mt-1">
@@ -776,7 +845,8 @@ export default function ShipmentsPage() {
                 <button
                   onClick={async () => {
 
-                    if (!flights.includes(editData.flight)) {
+                    const selectedFlight = flights.find((f) => f.flight_number === editData.flight);
+                    if (!selectedFlight) {
                       setEditFlightError("Flight tidak ditemukan");
                       return;
                     }
@@ -790,63 +860,33 @@ export default function ShipmentsPage() {
                       },
                       body: JSON.stringify({
                         id: editData.id,
-
-                        asal: editData.asal,
-                        tujuan: editData.tujuan,
-
-                        jenisBarang: editData.jenisBarang,
-
-                        kendaraan: editData.kendaraan,
-
-                        jenisPengiriman: editData.jenisPengiriman,
-
-                        deskripsi: editData.deskripsi,
-
-                        berat: Number(editData.berat),
-
-                        flight: editData.flight,
-
-                        status: editData.status,
+                        shipment_date: editData.tanggal,
+                        sender_name: editData.pengirim,
+                        receiver_name: editData.penerima,
+                        phone_number: editData.telepon,
+                        origin_city: editData.asal,
+                        destination_city: editData.tujuan,
+                        shipping_type: editData.jenisPengiriman,
+                        shipment_status: editData.status,
+                        vehicle_name: editData.kendaraan,
+                        flight_number: editData.flight,
+                        item_name: editData.item_name ?? editData.jenisBarang,
+                        item_type: editData.jenisBarang,
+                        item_description: editData.deskripsi,
+                        quantity: editData.quantity ?? 1,
+                        weight: Number(editData.berat),
+                        item_status: editData.item_status ?? "safe",
+                        shipping_price: Number(editData.harga),
+                        admin_fee: editData.admin_fee ?? 5000,
+                        total_price: editData.total_price ?? (Number(editData.harga) + (editData.admin_fee ?? 5000)),
+                        payment_method: editData.payment_method ?? "Transfer Bank",
+                        payment_date: editData.payment_date ?? editData.tanggal,
+                        transaction_status: editData.transaction_status ?? "paid",
                       }),
                     });
 
                     if (response.ok) {
-
-                      const refreshed = await fetch("/api/shipments");
-                      const data = await refreshed.json();
-
-                      const formatted = data.map((item: any) => ({
-                        id: item.id,
-                        awb: item.awb,
-
-                        tanggal: item.shipping_date,
-
-                        pengirim: item.sender_name,
-                        penerima: item.receiver_name,
-                        telepon: item.phone_number,
-
-                        asal: item.origin,
-                        tujuan: item.destination,
-
-                        jenisBarang: item.item_type,
-
-                        berat: item.weight,
-
-                        harga: item.shipping_cost,
-
-                        kendaraan: item.vehicle_type,
-
-                        jenisPengiriman: item.shipping_type,
-
-                        flight: item.flight_number,
-
-                        status: item.status,
-
-                        deskripsi: item.description,
-                      }));
-
-                      setShipments(formatted);
-
+                      await loadShipments();
                       setEditData(null);
 
                     } else {
@@ -901,42 +941,7 @@ export default function ShipmentsPage() {
                   });
 
                   if (response.ok) {
-
-                    const refreshed = await fetch("/api/shipments");
-                    const data = await refreshed.json();
-
-                    const formatted = data.map((item: any) => ({
-                      id: item.id,
-                      awb: item.awb,
-
-                      tanggal: item.shipping_date,
-
-                      pengirim: item.sender_name,
-                      penerima: item.receiver_name,
-                      telepon: item.phone_number,
-
-                      asal: item.origin,
-                      tujuan: item.destination,
-
-                      jenisBarang: item.item_type,
-
-                      berat: item.weight,
-
-                      harga: item.shipping_cost,
-
-                      kendaraan: item.vehicle_type,
-
-                      jenisPengiriman: item.shipping_type,
-
-                      flight: item.flight_number,
-
-                      status: item.status,
-
-                      deskripsi: item.description,
-                    }));
-
-                    setShipments(formatted);
-
+                    await loadShipments();
                     setDeleteData(null);
 
                   } else {

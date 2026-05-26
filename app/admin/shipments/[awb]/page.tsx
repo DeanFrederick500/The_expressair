@@ -1,19 +1,41 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Package, Check } from "lucide-react";
 
 export default function DetailShipment() {
 
-  const { awb } = useParams();
+  const params = useParams();
+  const awb = Array.isArray(params.awb) ? params.awb[0] : params.awb;
   const router = useRouter();
 
-  const shipments = JSON.parse(localStorage.getItem("shipments") || "[]");
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const data = shipments.find((s: any) => s.awb === awb);
-  if (!data) {
-    return <div className="p-6">Data tidak ditemukan</div>;
-  }
+  useEffect(() => {
+    if (!awb) return;
+
+    setLoading(true);
+    setError("");
+
+    fetch(`/api/shipments?awb=${encodeURIComponent(awb)}`)
+      .then((res) => res.json())
+      .then((result) => {
+        if (Array.isArray(result) && result.length > 0) {
+          setData(result[0]);
+        } else {
+          setError("Data tidak ditemukan");
+        }
+      })
+      .catch(() => {
+        setError("Gagal memuat detail shipment");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [awb]);
 
   const steps = [
     "Received",
@@ -29,7 +51,37 @@ export default function DetailShipment() {
     "Delivered": 4,
   };
 
-  const currentIndex = statusMap[data.status] ?? 0;
+  if (loading) {
+    return (
+      <div>
+        <button
+          onClick={() => router.push("/admin/shipments")}
+          className="mb-4 flex items-center gap-2 text-blue-600 hover:text-blue-800 transition font-medium"
+        >
+          <ArrowLeft size={18} />
+          Kembali ke Daftar Shipment
+        </button>
+        <div className="p-6">Memuat detail shipment...</div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div>
+        <button
+          onClick={() => router.push("/admin/shipments")}
+          className="mb-4 flex items-center gap-2 text-blue-600 hover:text-blue-800 transition font-medium"
+        >
+          <ArrowLeft size={18} />
+          Kembali ke Daftar Shipment
+        </button>
+        <div className="p-6 text-red-500">{error || "Data tidak ditemukan"}</div>
+      </div>
+    );
+  }
+
+  const currentIndex = statusMap[data.shipment_status] ?? 0;
 
   return (
     <div>
@@ -56,32 +108,32 @@ export default function DetailShipment() {
 
           <div>
             <p className="text-gray-400">Nomor AWB</p>
-            <p className="font-semibold">{data.awb}</p>
+            <p className="font-semibold">{data.awb_number}</p>
           </div>
 
           <div>
             <p className="text-gray-400">Berat</p>
-            <p className="font-semibold">{data.berat} kg</p>
+            <p className="font-semibold">{data.weight} kg</p>
           </div>
 
           <div>
             <p className="text-gray-400">No. Penerbangan</p>
-            <p className="font-semibold">{data.flight}</p>
+            <p className="font-semibold">{data.flight_number}</p>
           </div>
 
           <div>
             <p className="text-gray-400">Asal</p>
-            <p className="font-semibold">{data.asal}</p>
+            <p className="font-semibold">{data.origin_city}</p>
           </div>
 
           <div>
             <p className="text-gray-400">Tujuan</p>
-            <p className="font-semibold">{data.tujuan}</p>
+            <p className="font-semibold">{data.destination_city}</p>
           </div>
 
           <div>
             <p className="text-gray-400">Status Saat Ini</p>
-            <p className="font-semibold text-blue-600">{data.status}</p>
+            <p className="font-semibold text-blue-600">{data.shipment_status}</p>
           </div>
 
         </div>
@@ -149,8 +201,8 @@ export default function DetailShipment() {
                     <>
                       {/* LOKASI */}
                       {step === "Received" || step === "Sortation"
-                        ? `${data.asal} Hub`
-                        : `${data.tujuan} Airport`}
+                        ? `${data.origin_city} Hub`
+                        : `${data.destination_city} Airport`}
                       <br />
 
                       {/* TANGGAL */}
