@@ -440,7 +440,7 @@ export default function ShipmentsPage() {
       {/* MODAL TAMBAH */}
       {open && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center">
-          <div className="bg-white w-[420px] rounded-xl p-6 relative">
+          <div className="bg-white w-[420px] max-h-[90vh] overflow-y-auto rounded-xl p-6 relative">
 
             <button onClick={() => setOpen(false)} className="absolute right-4 top-4">
               <X />
@@ -675,7 +675,7 @@ export default function ShipmentsPage() {
       {/* MODAL EDIT */}
       {editData && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center">
-          <div className="bg-white w-[420px] rounded-xl p-6 relative">
+          <div className="bg-white w-[420px] max-h-[90vh] overflow-y-auto rounded-xl p-6 relative">
 
             <button onClick={() => setEditData(null)} className="absolute right-4 top-4">
               <X />
