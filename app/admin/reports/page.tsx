@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FileText,
   FileDown,
@@ -22,22 +22,70 @@ import {
 } from "recharts";
 
 export default function ReportPage() {
-  const [startDate, setStartDate] = useState("2026-04-01");
-  const [endDate, setEndDate] = useState("2026-04-09");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [error, setError] = useState("");
 
-  const generateChartData = (start: string, end: string) => {
+  const [shipments, setShipments] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Set default ke bulan saat ini
+    const today = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+    const formatDt = (d: Date) => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    };
+
+    setStartDate(formatDt(firstDay));
+    setEndDate(formatDt(lastDay));
+
+    const fetchData = async () => {
+      try {
+        const res = await fetch("/api/shipments");
+        const data = await res.json();
+        setShipments(data);
+      } catch (err) {
+        console.error("Error fetching shipments", err);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const generateChartData = (startStr: string, endStr: string, sourceShipments: any[]) => {
+    if (!startStr || !endStr) return [];
+
     const data = [];
-    const current = new Date(start);
-    const last = new Date(end);
+    
+    // Parse the YYYY-MM-DD string directly to avoid timezone shift on local date creation
+    const [startYear, startMonth, startDay] = startStr.split('-').map(Number);
+    const [endYear, endMonth, endDay] = endStr.split('-').map(Number);
+    
+    const current = new Date(startYear, startMonth - 1, startDay);
+    const last = new Date(endYear, endMonth - 1, endDay);
 
     while (current <= last) {
+      const year = current.getFullYear();
+      const month = String(current.getMonth() + 1).padStart(2, "0");
+      const day = String(current.getDate()).padStart(2, "0");
+      const dateStr = `${year}-${month}-${day}`;
+
+      const count = sourceShipments.filter((s: any) => {
+        if (!s.shipment_date) return false;
+        // Ambil hanya bagian tanggal (sebelum 'T')
+        return s.shipment_date.split('T')[0] === dateStr;
+      }).length;
+
       data.push({
         name: current.toLocaleDateString("id-ID", {
           day: "2-digit",
           month: "short",
         }),
-        value: Math.floor(Math.random() * 30) + 40,
+        value: count,
       });
 
       current.setDate(current.getDate() + 1);
@@ -46,9 +94,28 @@ export default function ReportPage() {
     return data;
   };
 
-  const [chartData, setChartData] = useState(
-    generateChartData("2026-04-01", "2026-04-09")
-  );
+  const filteredShipments = shipments.filter((s: any) => {
+    if (!s.shipment_date) return false;
+    // Potong jam-nya agar perbandingan hanya berdasarkan hari
+    const sDateOnly = s.shipment_date.split('T')[0]; 
+    return sDateOnly >= startDate && sDateOnly <= endDate;
+  });
+
+  const chartData = generateChartData(startDate, endDate, shipments);
+
+  const totalShipments = filteredShipments.length;
+
+  const landedCount = filteredShipments.filter(
+    (s: any) => s.flight_status === "Landed"
+  ).length;
+
+  const delayedCount = filteredShipments.filter(
+    (s: any) => s.flight_status === "Delayed"
+  ).length;
+
+  const onTimeRate = totalShipments > 0 
+    ? ((landedCount / totalShipments) * 100).toFixed(1) 
+    : "0.0";
 
   const applyFilter = () => {
     const start = new Date(startDate);
@@ -68,7 +135,6 @@ export default function ReportPage() {
     }
 
     setError("");
-    setChartData(generateChartData(startDate, endDate));
   };
 
   const exportPDF = () => {
@@ -143,7 +209,7 @@ export default function ReportPage() {
         <div className="bg-white p-5 rounded-xl shadow flex justify-between">
           <div>
             <p className="text-gray-500 text-sm">Total Shipment</p>
-            <h2 className="text-3xl font-bold mt-2">508</h2>
+            <h2 className="text-3xl font-bold mt-2">{totalShipments}</h2>
             <p className="text-sm text-gray-400 mt-2">
               dalam periode terpilih
             </p>
@@ -157,10 +223,10 @@ export default function ReportPage() {
           <div>
             <p className="text-gray-500 text-sm">On-Time Rate</p>
             <h2 className="text-3xl font-bold text-green-600 mt-2">
-              92.3%
+              {onTimeRate}%
             </h2>
             <p className="text-sm text-gray-400 mt-2">
-              pengiriman tepat waktu
+              pengiriman tepat waktu (Landed)
             </p>
           </div>
 
@@ -172,7 +238,7 @@ export default function ReportPage() {
           <div>
             <p className="text-gray-500 text-sm">Delayed</p>
             <h2 className="text-3xl font-bold text-red-600 mt-2">
-              39
+              {delayedCount}
             </h2>
             <p className="text-sm text-gray-400 mt-2">
               pengiriman tertunda
@@ -208,8 +274,7 @@ export default function ReportPage() {
                 <XAxis dataKey="name" />
 
                 <YAxis
-                  domain={[0, 80]}
-                  ticks={[0, 20, 40, 60, 80]}
+                  allowDecimals={false}
                 />
 
                 <Tooltip />
@@ -232,7 +297,6 @@ export default function ReportPage() {
         </div>
       </div>
 
-      {/* EXPORT */}
       {/* EXPORT */}
       <div className="bg-white p-5 rounded-xl shadow">
         <h2 className="font-semibold mb-3 flex items-center gap-2 text-xl">

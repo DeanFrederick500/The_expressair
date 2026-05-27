@@ -16,24 +16,37 @@ export default function DetailShipment() {
   const [shipments, setShipments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchAwb, setSearchAwb] = useState("");
+  const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem("shipments");
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/shipments?awb=${encodeURIComponent(awb)}`);
+        const result = await res.json();
+        
+        if (result && result.length > 0) {
+          setData(result[0]);
+        } else {
+          setData(null);
+        }
+      } catch (error) {
+        console.error("Error fetching shipment", error);
+        setData(null);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (saved) {
-      setShipments(JSON.parse(saved));
+    if (awb) {
+      fetchData();
     }
-
     setSearchAwb(awb || "");
-    setLoading(false);
   }, [awb]);
 
-  const data = shipments.find((s: any) => s.awb === awb);
-
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (!searchAwb.trim()) return;
-
-    router.push(`/tracking/${searchAwb}`);
+    router.push(`/tracking/${searchAwb.trim()}`);
   };
 
   const steps = [
@@ -50,32 +63,32 @@ export default function DetailShipment() {
     "Delivered": 4,
   };
 
-  const currentIndex = data ? statusMap[data.status] ?? 0 : 0;
+  const currentIndex = data ? statusMap[data.shipment_status] ?? 0 : 0;
 
   const trackingInfo = data
     ? [
       {
-        lokasi: `${data.asal}`,
+        lokasi: `${data.origin_city}`,
         waktu: "05 April 2026 pukul 08.30",
         desc: "Barang telah diterima oleh petugas di lokasi asal dan siap diproses untuk pengiriman udara.",
       },
       {
-        lokasi: `${data.asal}`,
+        lokasi: `${data.origin_city}`,
         waktu: "05 April 2026 pukul 09.15",
         desc: "Barang sedang melalui proses penyortiran di gudang untuk penyesuaian rute dan jadwal penerbangan.",
       },
       {
-        lokasi: `${data.asal} Airport`,
+        lokasi: `${data.origin_city} Airport`,
         waktu: "05 April 2026 pukul 11.45",
         desc: "Barang telah dimuat ke dalam pesawat dan siap untuk diberangkatkan menuju bandara tujuan.",
       },
       {
-        lokasi: `${data.asal} Airport`,
+        lokasi: `${data.origin_city} Airport`,
         waktu: "05 April 2026 pukul 13.20",
         desc: "Pesawat yang membawa kargo telah diberangkatkan dari bandara asal menuju bandara tujuan.",
       },
       {
-        lokasi: `${data.tujuan} Airport`,
+        lokasi: `${data.destination_city} Airport`,
         waktu: "05 April 2026 pukul 18.59",
         desc: "Pesawat telah tiba di bandara tujuan dan kargo siap untuk proses penyerahan kepada penerima.",
       },

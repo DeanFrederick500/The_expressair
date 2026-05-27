@@ -5,14 +5,31 @@ import { useRouter } from "next/navigation";
 
 export default function TrackingForm() {
   const [resi, setResi] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
     if (!resi.trim()) return;
 
-    router.push(`/tracking/${resi}`);
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/shipments?awb=${encodeURIComponent(resi.trim())}`);
+      const data = await res.json();
+
+      if (data && data.length > 0) {
+        router.push(`/tracking/${resi.trim()}`);
+      } else {
+        setError("Nomor AWB tidak ditemukan.");
+      }
+    } catch (err) {
+      setError("Terjadi kesalahan. Silakan coba lagi.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -32,11 +49,14 @@ export default function TrackingForm() {
         className="w-full mt-2 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-darkblue"
       />
 
+      {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+
       <button
         type="submit"
-        className="mt-3 w-1/3 bg-blueprimary text-white py-2 rounded-md hover:bg-blue-800 hover:scale-105 active:scale-95 transition duration-200"
+        disabled={loading}
+        className="mt-3 w-1/3 bg-blueprimary text-white py-2 rounded-md hover:bg-blue-800 hover:scale-105 active:scale-95 transition duration-200 disabled:opacity-50"
       >
-        CARI
+        {loading ? "Mencari..." : "CARI"}
       </button>
     </form>
   );
