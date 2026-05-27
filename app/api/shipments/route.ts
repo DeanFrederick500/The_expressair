@@ -16,7 +16,7 @@ export async function GET(req: Request) {
     const shipments = awb
       ? await sql`
 
-          SELECT
+          SELECT DISTINCT ON (shipments.id)
 
             shipments.id,
             shipments.awb_number,
@@ -52,7 +52,9 @@ export async function GET(req: Request) {
             vehicles.vehicle_type,
             vehicles.vehicle_code,
 
-            flights.flight_number
+            flights.flight_number,
+            flights.etd,
+            flights.status AS flight_status
 
           FROM shipments
 
@@ -74,7 +76,7 @@ export async function GET(req: Request) {
         `
       : await sql`
 
-          SELECT
+          SELECT DISTINCT ON (shipments.id)
 
             shipments.id,
             shipments.awb_number,
@@ -110,7 +112,9 @@ export async function GET(req: Request) {
             vehicles.vehicle_type,
             vehicles.vehicle_code,
 
-            flights.flight_number
+            flights.flight_number,
+            flights.etd,
+            flights.status AS flight_status
 
           FROM shipments
 

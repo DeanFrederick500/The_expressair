@@ -29,6 +29,10 @@ export default function AdminPage() {
 
   const [shipments, setShipments] = useState<any[]>([]);
 
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   // =====================================================
   // FETCH DATA
   // =====================================================
@@ -81,7 +85,7 @@ export default function AdminPage() {
   });
 
   // =====================================================
-  // SUMMARY
+  // SUMMARY & PAGINATION DATA
   // =====================================================
 
   const totalCargo = dataDashboard.length;
@@ -99,6 +103,24 @@ export default function AdminPage() {
       s.flightStatus === "Departed" ||
       s.flightStatus === "In Transit"
   ).length;
+
+  // Calculate items for current page
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = dataDashboard.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(dataDashboard.length / itemsPerPage);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
 
   // =====================================================
   // DUMMY CHART
@@ -363,7 +385,7 @@ export default function AdminPage() {
           </thead>
 
           <tbody className="divide-y">
-            {dataDashboard.map((s: any, index: number) => (
+            {currentItems.map((s: any, index: number) => (
               <tr
                 key={`${s.id}-${index}`}
                 className="hover:bg-gray-50"
@@ -431,12 +453,69 @@ export default function AdminPage() {
                       In Transit
                     </span>
                   )}
+
+                  {s.flightStatus ===
+                    "Landed" && (
+                    <span className="flex items-center gap-1 bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs w-fit">
+                      <CheckCircle size={14} />
+                      Landed
+                    </span>
+                  )}
+
+                  {s.flightStatus !== "Departed" &&
+                   s.flightStatus !== "Scheduled" &&
+                   s.flightStatus !== "Delayed" &&
+                   s.flightStatus !== "In Transit" &&
+                   s.flightStatus !== "Landed" && (
+                    <span className="flex items-center gap-1 bg-gray-100 text-gray-500 px-3 py-1 rounded-full text-xs w-fit">
+                      {s.flightStatus}
+                    </span>
+                  )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* PAGINATION CONTROLS */}
+      {totalPages > 0 && (
+        <div className="flex justify-center gap-2 p-4 mt-4">
+          <button
+            className="px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
+            Prev
+          </button>
+
+          {Array.from({ length: totalPages }).map((_, i) => {
+            const page = i + 1;
+
+            return (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`px-3 py-1 border rounded ${
+                  currentPage === page ? "bg-blue-600 text-white" : ""
+                }`}
+              >
+                {page}
+              </button>
+            );
+          })}
+
+          <button
+            className="px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() =>
+              setCurrentPage(p => Math.min(totalPages, p + 1))
+            }
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }

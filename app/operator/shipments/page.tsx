@@ -389,6 +389,19 @@ export default function ShipmentsPage() {
                   {s.status === "In Transit" && <span className="bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full text-xs">In Transit</span>}
                   {s.status === "Received" && <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs">Received</span>}
                   {s.status === "Delivered" && <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs">Delivered</span>}
+                  {s.status === "Scheduled" && <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs">Scheduled</span>}
+                  {s.status === "Departed" && <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs">Departed</span>}
+                  {s.status === "Delayed" && <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs">Delayed</span>}
+                  {s.status === "Landed" && <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs">Landed</span>}
+                  {s.status !== "In Transit" &&
+                   s.status !== "Received" &&
+                   s.status !== "Delivered" &&
+                   s.status !== "Scheduled" &&
+                   s.status !== "Departed" &&
+                   s.status !== "Delayed" &&
+                   s.status !== "Landed" && (
+                    <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs">{s.status}</span>
+                  )}
                 </td>
 
                 <td className="p-3">
@@ -897,13 +910,18 @@ export default function ShipmentsPage() {
               <div>
                 <label className="text-sm">Status Baru</label>
                 <select
-                  value={editData.status}
+                  value={editData.status || ""}
                   onChange={(e) => setEditData({ ...editData, status: e.target.value })}
                   className="w-full border rounded-lg px-3 py-2 mt-1"
                 >
-                  <option>Received</option>
-                  <option>In Transit</option>
-                  <option>Delivered</option>
+                  <option value="" disabled>Pilih Status</option>
+                  <option value="Received">Received</option>
+                  <option value="Scheduled">Scheduled</option>
+                  <option value="Departed">Departed</option>
+                  <option value="Delayed">Delayed</option>
+                  <option value="In Transit">In Transit</option>
+                  <option value="Landed">Landed</option>
+                  <option value="Delivered">Delivered</option>
                 </select>
               </div>
 
