@@ -12,6 +12,29 @@ export default function ShipmentsPage() {
   const [shipments, setShipments] = useState<any[]>([]);
   const [itemTypes, setItemTypes] = useState<string[]>([]);
 
+  const cities = [
+    { code: "JKT", name: "Jakarta" },
+    { code: "SBY", name: "Surabaya" },
+    { code: "BDG", name: "Bandung" },
+    { code: "SMG", name: "Semarang" },
+    { code: "YIA", name: "Yogyakarta" },
+    { code: "SOC", name: "Solo" },
+    { code: "MLG", name: "Malang" },
+    { code: "DPS", name: "Denpasar" },
+    { code: "MDN", name: "Medan" },
+    { code: "PKU", name: "Pekanbaru" },
+    { code: "PLM", name: "Palembang" },
+    { code: "BPN", name: "Balikpapan" },
+    { code: "SMD", name: "Samarinda" },
+    { code: "MKS", name: "Makassar" },
+    { code: "MND", name: "Manado" },
+    { code: "JMB", name: "Jambi" },
+    { code: "BJM", name: "Banjarmasin" },
+    { code: "PNK", name: "Pontianak" },
+    { code: "BTM", name: "Batam" },
+    { code: "AMQ", name: "Ambon" },
+  ];
+
   const loadShipments = async () => {
     try {
       const response = await fetch("/api/shipments");
@@ -630,23 +653,37 @@ export default function ShipmentsPage() {
               {/* ASAL */}
               <div>
                 <label className="text-sm">Asal</label>
-                <input
+                <select
                   required
                   className="w-full border rounded-lg px-3 py-2 mt-1"
                   value={form.asal}
                   onChange={(e) => setForm({ ...form, asal: e.target.value })}
-                />
+                >
+                  <option value="">Pilih Kota Asal</option>
+                  {cities.map((city) => (
+                    <option key={city.code} value={`${city.name} (${city.code})`}>
+                      {city.name} ({city.code})
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* TUJUAN */}
               <div>
                 <label className="text-sm">Tujuan</label>
-                <input
+                <select
                   required
                   className="w-full border rounded-lg px-3 py-2 mt-1"
                   value={form.tujuan}
                   onChange={(e) => setForm({ ...form, tujuan: e.target.value })}
-                />
+                >
+                  <option value="">Pilih Kota Tujuan</option>
+                  {cities.map((city) => (
+                    <option key={city.code} value={`${city.name} (${city.code})`}>
+                      {city.name} ({city.code})
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* BERAT */}
