@@ -94,10 +94,13 @@ export default function AdminLayout({ children }: any) {
             return (
               <Link key={item.path} href={item.path}>
                 <div
-                  className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition ${active
-                    ? "bg-white text-blue-700"
-                    : "hover:bg-blue-600"
-                    }`}
+                  className={`flex items-center ${
+                    open ? "gap-3 justify-start" : "justify-center"
+                  } p-3 rounded-lg cursor-pointer transition ${
+                    active
+                      ? "bg-white text-blue-700"
+                      : "hover:bg-blue-600"
+                  }`}
                 >
                   <Icon size={20} />
                   {open && <span>{item.name}</span>}
@@ -109,7 +112,9 @@ export default function AdminLayout({ children }: any) {
 
         {/* USER + LOGOUT */}
         <div className="p-4 border-t border-white/20">
-          <div className="flex items-center gap-2 mb-3">
+          <div className={`flex items-center mb-3 ${
+              open ? "gap-2" : "justify-center"
+            }`}>
             <User size={20} />
 
             {open && (
@@ -127,7 +132,9 @@ export default function AdminLayout({ children }: any) {
 
           <button
             onClick={() => router.push("/login")}
-            className="flex items-center gap-2 text-sm hover:text-gray-200"
+            className={`flex items-center text-sm hover:text-gray-200 w-full ${
+              open ? "gap-2" : "justify-center"
+            }`}
           >
             <LogOut size={18} />
             {open && "Logout"}
