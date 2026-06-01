@@ -80,7 +80,6 @@ export default function LoginPage() {
               className="w-full border p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
             />
           </div>
 
@@ -94,7 +93,6 @@ export default function LoginPage() {
               className="w-full border p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
             />
           </div>
 
@@ -113,15 +111,15 @@ export default function LoginPage() {
 
         </form>
 
-        <div className="mt-6 border-t pt-4 text-center text-sm text-gray-500">
+        {/* <div className="mt-6 border-t pt-4 text-center text-sm text-gray-500"> */}
           {/* <p>Login menggunakan email sesuai role (admin/operator)</p> */}
-          <p className="mt-2">
+          {/* <p className="mt-2">
             Demo: admin@expressair.com / admin123
           </p>
           <p>
             operator@expressair.com / operator123
           </p>
-        </div>
+        </div> */}
 
       </div>
     </div>
