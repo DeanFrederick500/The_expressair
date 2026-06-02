@@ -20,7 +20,7 @@ import {
   Clock,
 } from "lucide-react";
 
-export default function AdminPage() {
+export default function OperatorPage() {
   // =====================================================
   // STATE
   // =====================================================
@@ -28,6 +28,10 @@ export default function AdminPage() {
   const [mounted, setMounted] = useState(false);
 
   const [shipments, setShipments] = useState<any[]>([]);
+
+  useEffect(() => {
+    document.title = "Dashboard Operator - ExpressAir Cargo System";
+  }, []);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -395,53 +399,53 @@ export default function AdminPage() {
                 <td className="p-3">
                   {s.flightStatus ===
                     "Departed" && (
-                    <span className="flex items-center gap-1 bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs w-fit">
-                      <ArrowUpRight size={14} />
-                      Departed
-                    </span>
-                  )}
+                      <span className="flex items-center gap-1 bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs w-fit">
+                        <ArrowUpRight size={14} />
+                        Departed
+                      </span>
+                    )}
 
                   {s.flightStatus ===
                     "Scheduled" && (
-                    <span className="flex items-center gap-1 bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs w-fit">
-                      <CheckCircle size={14} />
-                      Scheduled
-                    </span>
-                  )}
+                      <span className="flex items-center gap-1 bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs w-fit">
+                        <CheckCircle size={14} />
+                        Scheduled
+                      </span>
+                    )}
 
                   {s.flightStatus ===
                     "Delayed" && (
-                    <span className="flex items-center gap-1 bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs w-fit">
-                      <AlertTriangle size={14} />
-                      Delayed
-                    </span>
-                  )}
+                      <span className="flex items-center gap-1 bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs w-fit">
+                        <AlertTriangle size={14} />
+                        Delayed
+                      </span>
+                    )}
 
                   {s.flightStatus ===
                     "In Transit" && (
-                    <span className="flex items-center gap-1 bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs w-fit">
-                      <Clock size={14} />
-                      In Transit
-                    </span>
-                  )}
+                      <span className="flex items-center gap-1 bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs w-fit">
+                        <Clock size={14} />
+                        In Transit
+                      </span>
+                    )}
 
                   {s.flightStatus ===
                     "Landed" && (
-                    <span className="flex items-center gap-1 bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs w-fit">
-                      <CheckCircle size={14} />
-                      Landed
-                    </span>
-                  )}
+                      <span className="flex items-center gap-1 bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs w-fit">
+                        <CheckCircle size={14} />
+                        Landed
+                      </span>
+                    )}
 
                   {s.flightStatus !== "Departed" &&
-                   s.flightStatus !== "Scheduled" &&
-                   s.flightStatus !== "Delayed" &&
-                   s.flightStatus !== "In Transit" &&
-                   s.flightStatus !== "Landed" && (
-                    <span className="flex items-center gap-1 bg-gray-100 text-gray-500 px-3 py-1 rounded-full text-xs w-fit">
-                      {s.flightStatus}
-                    </span>
-                  )}
+                    s.flightStatus !== "Scheduled" &&
+                    s.flightStatus !== "Delayed" &&
+                    s.flightStatus !== "In Transit" &&
+                    s.flightStatus !== "Landed" && (
+                      <span className="flex items-center gap-1 bg-gray-100 text-gray-500 px-3 py-1 rounded-full text-xs w-fit">
+                        {s.flightStatus}
+                      </span>
+                    )}
                 </td>
               </tr>
             ))}
@@ -467,9 +471,8 @@ export default function AdminPage() {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`px-3 py-1 border rounded ${
-                  currentPage === page ? "bg-blue-600 text-white" : ""
-                }`}
+                className={`px-3 py-1 border rounded ${currentPage === page ? "bg-blue-600 text-white" : ""
+                  }`}
               >
                 {page}
               </button>
