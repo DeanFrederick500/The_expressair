@@ -1281,8 +1281,12 @@ export default function ShipmentsPage() {
 
                   if (response.ok) {
                     await loadShipments();
+                    setSuccessModal({
+                      open: true,
+                      message: "Shipment berhasil dihapus.",
+                      awb: deleteData.awb,
+                    });
                     setDeleteData(null);
-                    alert("Shipment berhasil dihapus!");
 
                   } else {
 
