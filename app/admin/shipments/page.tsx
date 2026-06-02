@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Plus, X, Trash2, Search, Filter, Eye, Pencil } from "lucide-react";
+import { Plus, X, Trash2, Search, Filter, Eye, Pencil, Check } from "lucide-react";
 
 export default function ShipmentsPage() {
   const router = useRouter();
@@ -120,6 +120,7 @@ export default function ShipmentsPage() {
   const [showFilter, setShowFilter] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [successModal, setSuccessModal] = useState({ open: false, message: "", awb: "" });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [editErrors, setEditErrors] = useState<Record<string, string>>({});
 
@@ -287,9 +288,10 @@ export default function ShipmentsPage() {
       return;
     }
 
+    const newAwb = generateAWB();
     const newData = {
 
-      awb_number: generateAWB(),
+      awb_number: newAwb,
 
       shipment_date: form.tanggal,
 
@@ -338,7 +340,11 @@ export default function ShipmentsPage() {
     if (response.ok) {
       await loadShipments();
       setOpen(false);
-      alert("Shipment berhasil ditambahkan!");
+      setSuccessModal({
+        open: true,
+        message: "Shipment berhasil ditambahkan.",
+        awb: newAwb,
+      });
 
       setForm({
         tanggal: "",
@@ -426,7 +432,11 @@ export default function ShipmentsPage() {
     if (response.ok) {
       await loadShipments();
       setEditData(null);
-      alert("Shipment berhasil diperbarui!");
+      setSuccessModal({
+        open: true,
+        message: "Shipment berhasil diperbarui.",
+        awb: editData.awb,
+      });
     } else {
       alert("Gagal update shipment");
     }
@@ -1271,8 +1281,12 @@ export default function ShipmentsPage() {
 
                   if (response.ok) {
                     await loadShipments();
+                    setSuccessModal({
+                      open: true,
+                      message: "Shipment berhasil dihapus.",
+                      awb: deleteData.awb,
+                    });
                     setDeleteData(null);
-                    alert("Shipment berhasil dihapus!");
 
                   } else {
 
@@ -1286,6 +1300,26 @@ export default function ShipmentsPage() {
               </button>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* MODAL SUKSES */}
+      {successModal.open && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[60]">
+          <div className="bg-white w-[400px] rounded-xl p-8 text-center shadow-lg relative">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check size={32} className="text-green-600" strokeWidth={3} />
+            </div>
+            <h2 className="text-xl font-bold mb-4">{successModal.message}</h2>
+            <p className="text-gray-600 mb-1">Nomor AWB:</p>
+            <p className="text-2xl font-bold text-blue-700 mb-8">{successModal.awb}</p>
+            <button
+              onClick={() => setSuccessModal({ open: false, message: "", awb: "" })}
+              className="bg-blue-600 text-white px-10 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
+            >
+              OK
+            </button>
           </div>
         </div>
       )}
