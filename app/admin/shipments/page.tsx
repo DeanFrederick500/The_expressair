@@ -35,6 +35,90 @@ export default function ShipmentsPage() {
     { code: "AMQ", name: "Ambon" },
   ];
 
+  const calculatePrice = (
+    jenisBarang: string,
+    berat: number,
+    asal: string,
+    tujuan: string,
+    jenisPengiriman: string
+  ) => {
+    const rates: Record<string, number> = {
+      "Biasa": 10000,
+      "Small Cargo": 15000,
+      "Medium Cargo": 20000,
+      "Large Cargo": 25000,
+      "Heavy Cargo": 35000,
+    };
+
+    const shippingMultiplier: Record<string, number> = {
+      "Biasa": 1,
+      "Cepat": 1.5,
+      "VVIP": 2,
+    };
+
+    const zone1 = [
+      "Jakarta",
+      "Bandung",
+      "Semarang",
+      "Yogyakarta",
+      "Solo",
+      "Surabaya",
+      "Malang",
+    ];
+
+    const zone2 = [
+      "Denpasar",
+      "Medan",
+      "Pekanbaru",
+      "Palembang",
+      "Batam",
+      "Jambi",
+    ];
+
+    const zone3 = [
+      "Makassar",
+      "Balikpapan",
+      "Samarinda",
+      "Manado",
+      "Ambon",
+      "Pontianak",
+      "Banjarmasin",
+    ];
+
+    const getZone = (city: string) => {
+      const cityName = city.split(" (")[0];
+
+      if (zone1.includes(cityName)) return 1;
+      if (zone2.includes(cityName)) return 2;
+      return 3;
+    };
+
+    const rate = rates[jenisBarang] || 10000;
+
+    const originZone = getZone(asal);
+    const destinationZone = getZone(tujuan);
+
+    let routeCost = 50000;
+
+    if (originZone !== destinationZone) {
+      routeCost = 150000;
+    }
+
+    if (
+      (originZone === 1 && destinationZone === 3) ||
+      (originZone === 3 && destinationZone === 1)
+    ) {
+      routeCost = 250000;
+    }
+
+    const multiplier =
+      shippingMultiplier[jenisPengiriman] || 1;
+
+    return Math.round(
+      (berat * rate + routeCost) * multiplier
+    );
+  };
+
   const loadShipments = async () => {
     try {
       const response = await fetch("/api/shipments");
@@ -150,6 +234,35 @@ export default function ShipmentsPage() {
     flight: "",
     deskripsi: "",
   });
+
+  useEffect(() => {
+    if (
+      form.jenisBarang &&
+      form.berat &&
+      form.asal &&
+      form.tujuan &&
+      form.jenisPengiriman
+    ) {
+      const price = calculatePrice(
+        form.jenisBarang,
+        Number(form.berat),
+        form.asal,
+        form.tujuan,
+        form.jenisPengiriman
+      );
+
+      setForm((prev) => ({
+        ...prev,
+        harga: String(price),
+      }));
+    }
+  }, [
+    form.jenisBarang,
+    form.berat,
+    form.asal,
+    form.tujuan,
+    form.jenisPengiriman
+  ]);
 
   const generateAWB = () => {
     const randomNumber = Math.floor(
@@ -921,18 +1034,19 @@ export default function ShipmentsPage() {
                 <label className="text-sm">Harga Pengiriman</label>
                 <input
                   type="number"
+                  readOnly
                   className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.harga || hargaError ? 'border-red-500' : ''}`}
                   value={form.harga}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setForm({ ...form, harga: val });
-                    if (formErrors.harga) setFormErrors({ ...formErrors, harga: "" });
-                    if (val === "" || isNaN(Number(val))) {
-                      setHargaError("Anda harus memasukkan angka");
-                    } else {
-                      setHargaError("");
-                    }
-                  }}
+                  // onChange={(e) => {
+                  //   const val = e.target.value;
+                  //   setForm({ ...form, harga: val });
+                  //   if (formErrors.harga) setFormErrors({ ...formErrors, harga: "" });
+                  //   if (val === "" || isNaN(Number(val))) {
+                  //     setHargaError("Anda harus memasukkan angka");
+                  //   } else {
+                  //     setHargaError("");
+                  //   }
+                  // }}
                 />
                 {(formErrors.harga || hargaError) && <p className="text-red-500 text-xs mt-1">{formErrors.harga || hargaError}</p>}
               </div>
