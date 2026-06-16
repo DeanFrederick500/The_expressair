@@ -487,13 +487,13 @@ export default function ShipmentsPage() {
       item_status: "safe",
 
       shipping_price: Number(form.harga),
-      admin_fee: 5000,
+      admin_fee: 0,
       total_price: Number(form.harga) + 5000,
 
       payment_method: "Transfer Bank",
       payment_date: form.tanggal,
 
-      transaction_status: "paid",
+      transaction_status: "Completed",
 
     };
 
@@ -609,6 +609,8 @@ export default function ShipmentsPage() {
       alert("Gagal update shipment");
     }
   };
+
+  
 
   return (
     <div>
@@ -860,10 +862,10 @@ export default function ShipmentsPage() {
                     if (formErrors.jenisPengiriman) setFormErrors({ ...formErrors, jenisPengiriman: "" });
                   }}
                 >
-                  <option value="">Pilih</option>
-                  <option value="Biasa">Biasa</option>
-                  <option value="Cepat">Cepat</option>
-                  <option value="VVIP">VVIP</option>
+                  <option value="">Select Shipping Type</option>
+                  <option value="Standard">Standard</option>
+                  <option value="Express">Express</option>
+                  <option value="Priority">Priority</option>
                 </select>
                 {formErrors.jenisPengiriman && <p className="text-red-500 text-xs mt-1">{formErrors.jenisPengiriman}</p>}
               </div>
@@ -1006,7 +1008,7 @@ export default function ShipmentsPage() {
                   ))}
                   {itemTypes.length === 0 && ( // Fallback options if API returns no item types
                     <>
-                      <option value="Biasa">Biasa</option>
+                      <option value="General Cargo">General Cargo</option>
                       <option value="Small Cargo">Small Cargo</option>
                       <option value="Medium Cargo">Medium Cargo</option>
                       <option value="Large Cargo">Large Cargo</option>
@@ -1235,7 +1237,7 @@ export default function ShipmentsPage() {
                   ))}
                   {itemTypes.length === 0 && ( // Fallback options if API returns no item types
                     <>
-                      <option value="Biasa">Biasa</option>
+                      <option value="General Cargo">General Cargo</option>
                       <option value="Small Cargo">Small Cargo</option>
                       <option value="Medium Cargo">Medium Cargo</option>
                       <option value="Large Cargo">Large Cargo</option>
@@ -1350,10 +1352,10 @@ export default function ShipmentsPage() {
                   }}
                   className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.jenisPengiriman ? 'border-red-500' : ''}`}
                 >
-                  <option value="">Pilih Jenis Pengiriman</option>
-                  <option value="Biasa">Biasa</option>
-                  <option value="Cepat">Cepat</option>
-                  <option value="VVIP">VVIP</option>
+                  <option value="">Select Shipping Type</option>
+                  <option value="Standard">Standard</option>
+                  <option value="Express">Express</option>
+                  <option value="Priority">Priority</option>
                 </select>
                 {editErrors.jenisPengiriman && <p className="text-red-500 text-xs mt-1">{editErrors.jenisPengiriman}</p>}
               </div>

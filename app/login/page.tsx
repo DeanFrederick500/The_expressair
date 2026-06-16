@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -59,24 +61,30 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 px-4">
 
       <div className="w-full max-w-md">
-
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1 text-white/80 hover:text-white transition-colors text-sm mb-4"
+        >
+          <ArrowLeft size={14} />
+          Back to Home
+        </Link>
         {/* LOGO */}
-        <div className="mb-8 flex items-center justify-center gap-4">
+        <div className="mb-5 flex items-center justify-center gap-3">
 
           <Image
             src="/logo siweb.png"
             alt="Logo ExpressAir"
-            width={90}
-            height={90}
+            width={70}
+            height={70}
             className="object-contain"
           />
 
           <div className="flex flex-col">
-            <h1 className="text-4xl font-bold text-white leading-none">
+            <h1 className="text-3xl font-bold text-white leading-none">
               ExpressAir
             </h1>
 
-            <p className="text-blue-100 text-base mt-1">
+            <p className="text-blue-100 text-sm mt-1">
               Cargo System
             </p>
           </div>
