@@ -19,13 +19,13 @@ export default function NotFound() {
 
           <div className="py-16 flex justify-center">
 
-            <div className="bg-yellow-100 px-10 py-8 rounded-2xl shadow text-center flex flex-col items-center max-w-2xl">
+            <div className="px-10 py-8 rounded-2xl text-center flex flex-col items-center max-w-2xl">
 
               <div className="w-16 h-16 rounded-full bg-yellow-500 flex items-center justify-center text-white text-3xl font-bold mb-4">
                 !
               </div>
 
-              <h2 className="text-3xl font-bold text-yellow-900 mb-3">
+              <h2 className="text-3xl font-bold text-darkblue mb-3">
                 404 - Page Not Found
               </h2>
 

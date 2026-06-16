@@ -48,12 +48,21 @@ export default function AdminPage() {
 
   const fetchData = async () => {
     try {
-      const shipmentRes = await fetch("/api/shipments");
+      const shipmentRes = await fetch("/api/shipments"); // eror 2, pnyebab
       const shipmentJson = await shipmentRes.json();
 
-      setShipments(shipmentJson);
+      console.log("SHIPMENT RESPONSE:", shipmentJson);
+      console.log("IS ARRAY:", Array.isArray(shipmentJson));
+
+      setShipments(
+        Array.isArray(shipmentJson)
+          ? shipmentJson
+          : []
+      );
+
     } catch (error) {
       console.error(error);
+      setShipments([]);
     }
   };
 
@@ -78,7 +87,7 @@ export default function AdminPage() {
   // DATA MAPPING
   // =====================================================
 
-  const dataDashboard = shipments.map((s: any) => {
+  const dataDashboard = shipments.map((s: any) => { //error 2
     return {
       ...s,
 
