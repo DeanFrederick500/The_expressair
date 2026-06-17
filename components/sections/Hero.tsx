@@ -11,12 +11,12 @@ export default function Hero() {
         {/* LEFT */}
         <div className="flex-row">
           <h1 className="text-3xl md:text-5xl font-bold text-darkblue mb-6">
-            Dengan ekosistem logistik udara yang terintegrasi,
+            With an integrated air logistics ecosystem,
           </h1>
 
           <p className="text-black-600 mb-6">
-            Anda dapat menikmati kemudahan distribusi cargo yang cepat,
-            efisien, dan tanpa batas ke seluruh penjuru dunia.
+            You can enjoy fast, efficient, and unlimited cargo distribution
+            to every corner of the world.
           </p>
 
           <TrackingForm />

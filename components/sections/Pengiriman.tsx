@@ -8,25 +8,25 @@ export default function PengirimanUdara() {
       title: "Small Cargo",
       size: "30 x 30 x 30 cm",
       weight: "1 - 5 kg",
-      desc: "Cocok untuk dokumen, aksesoris kecil, dan barang ringan.",
+      desc: "Perfect for documents, small accessories, and lightweight items.",
     },
     {
       title: "Medium Cargo",
       size: "80 x 80 x 80 cm",
       weight: "5 - 50 kg",
-      desc: "Ideal untuk barang elektronik, ritel, dan kebutuhan bisnis.",
+      desc: "Ideal for electronics, retail, and business needs.",
     },
     {
       title: "Large Cargo",
       size: "150 x 150 x 150 cm",
       weight: "50 - 200 kg",
-      desc: "Untuk mesin kecil, bahan bangunan ringan, stok bisnis.",
+      desc: "For small machinery, lightweight building materials, business stock.",
     },
     {
       title: "Heavy Cargo",
-      size: "Kustom (menyesuaikan jenis barang)",
+      size: "Custom (adjustable by item type)",
       weight: "> 200 kg",
-      desc: "Untuk pengiriman besar dan kebutuhan industri.",
+      desc: "For large shipments and industrial needs.",
     }
   ];
 
@@ -36,11 +36,11 @@ export default function PengirimanUdara() {
 
         {/* 🔥 MAIN TITLE (CENTER) */}
         <h2 className="text-3xl md:text-4xl font-bold text-darkblue text-center mb-12">
-          Pengiriman Udara
+          Air Shipping
         </h2>
         <p className="text-black mb-8 text-center">
-          Kami menyediakan berbagai kategori pengiriman yang dapat disesuaikan
-          dengan kebutuhan ukuran dan berat barang Anda.
+          We provide various shipping categories that can be customized
+          according to your item size and weight needs.
         </p>
 
         {/* 🔥 GRID */}
@@ -50,7 +50,7 @@ export default function PengirimanUdara() {
           <div className="ml-10">
             {/* SUB TITLE */}
             <h3 className="text-xl font-semibold text-darkblue mb-6">
-              Jenis Pengiriman
+              Shipping Types
             </h3>
 
             {/* CARDS */}
@@ -71,7 +71,7 @@ export default function PengirimanUdara() {
                       width={20}
                       height={20}
                     />
-                    Ukuran: {item.size}
+                    Size: {item.size}
                   </p>
 
                   <p className="flex items-center gap-2 text-sm text-black mb-1">
@@ -81,7 +81,7 @@ export default function PengirimanUdara() {
                       width={20}
                       height={20}
                     />
-                    Berat: {item.weight}
+                    Weight: {item.weight}
                   </p>
 
                   <p className="text-sm text-black">
@@ -109,7 +109,7 @@ export default function PengirimanUdara() {
 
         </div>
         <h2 className="text-3xl md:text-4xl font-bold text-darkblue text-center mt-14">
-          Semua Kebutuhan Ada di Tangan Anda
+          Everything You Need Is in Your Hands
         </h2>
       </div>
     </section>

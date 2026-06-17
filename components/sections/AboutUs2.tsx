@@ -26,23 +26,22 @@ export default function Mengenal() {
         {/* RIGHT - TEXT */}
         <div>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Mengenal Lebih Dekat ExpressAir
+            Get to Know ExpressAir Better
           </h2>
 
           <p className="text-white mb-4">
-            ExpressAir hadir sebagai solusi logistik udara yang mengutamakan
-            kecepatan, keamanan, dan efisiensi dalam setiap pengiriman.
+            ExpressAir is here as an air logistics solution that prioritizes
+            speed, security, and efficiency in every delivery.
           </p>
 
           <p className="text-white mb-6">
-            Dengan dukungan teknologi modern dan jaringan distribusi yang luas,
-            kami mampu menjangkau berbagai wilayah domestik hingga internasional
-            secara optimal.
+            With support from modern technology and a wide distribution network,
+            we are able to reach various domestic and international regions optimally.
           </p>
 
           {/* CTA Button */}
           <button className="bg-white text-darkblue px-6 py-3 rounded-md hover:bg-white hover:scale-105 active:scale-95 transition duration-200">
-            Pelajari Lebih Lanjut
+            Learn More
           </button>
         </div>
 

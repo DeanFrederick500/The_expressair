@@ -6,17 +6,17 @@ export default function VisiMisi() {
   const items = [
     {
       title: "Digitalization, Innovation & Transformation",
-      desc: "Mengembangkan sistem ekspedisi kargo berbasis digital yang inovatif dan terintegrasi untuk meningkatkan efisiensi, kecepatan, dan akurasi operasional.",
+      desc: "Develop innovative and integrated digital cargo expedition systems to improve operational efficiency, speed, and accuracy.",
       img: "/misi1.png",
     },
     {
       title: "Agile & Customer-Centric Organization",
-      desc: "Menyediakan sistem yang responsif, fleksibel, dan berfokus pada kemudahan penggunaan guna mendukung kebutuhan operasional secara optimal.",
+      desc: "Provide responsive, flexible systems focused on ease of use to optimally support operational needs.",
       img: "/visi2.png",
     },
     {
       title: "Developing and Empowering Young Talented Human Capital",
-      desc: "Mendukung pengembangan talenta melalui sistem yang intuitif dan mendorong peningkatan kompetensi digital dalam lingkungan kerja.",
+      desc: "Support talent development through intuitive systems and promote digital competency improvement in the workplace.",
       img: "/visi3.png",
     },
   ];
@@ -39,11 +39,11 @@ export default function VisiMisi() {
         
         {/* Title */}
         <h2 className="text-3xl md:text-4xl font-bold text-darkblue mb-4">
-          Visi & Misi Kami
+          Our Vision & Mission
         </h2>
 
         <p className="text-black mb-10">
-          Komitmen kami dalam memberikan layanan terbaik melalui visi dan misi yang kuat.
+          Our commitment to providing the best services through a strong vision and mission.
         </p>
 
         {/* CARD TAMBAHAN (HIGHLIGHT) */}
@@ -62,7 +62,7 @@ export default function VisiMisi() {
               Delivering the Future of Integrated Air Cargo Logistics
             </h3>
             <p className="text-black text-sm">
-              Menjadi sistem manajemen ekspedisi kargo udara yang andal, efisien, dan terintegrasi secara digital, dengan menghadirkan informasi pengiriman yang akurat, real-time, dan mudah diakses, guna mendukung kelancaran operasional logistik serta meningkatkan kualitas layanan distribusi secara profesional dan berkelanjutan.
+              To become a reliable, efficient, and digitally integrated air cargo management system, providing accurate, real-time, and easily accessible shipping information to support smooth logistics operations and improve the quality of distribution services professionally and sustainably.
             </p>
           </div>
         </div>

@@ -14,19 +14,19 @@ export default function Footer() {
           />
           <h2 className="font-bold mb-2 text-xl">ExpressAir</h2>
           </div>
-          <p> Integrator logistik udara terkemuka <br />di Asia Tenggara.</p>
+          <p> Leading air cargo integrator <br />in Southeast Asia.</p>
         </div>
 
         <div>
-          <h2 className="font-bold mb-2">Pintasan</h2>
-          <p>Beranda</p>
-          <p>Tentang Kami</p>
-          <p>Layanan</p>
+          <h2 className="font-bold mb-2">Quick Links</h2>
+          <p>Home</p>
+          <p>About Us</p>
+          <p>Services</p>
           <p>Login</p>
         </div>
 
         <div>
-          <h2 className="font-bold mb-2">Layanan</h2>
+          <h2 className="font-bold mb-2">Services</h2>
           <p>Small Cargo</p>
           <p>Medium Cargo</p>
           <p>Large Cargo</p>

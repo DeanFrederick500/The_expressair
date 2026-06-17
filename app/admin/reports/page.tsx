@@ -10,6 +10,7 @@ import {
   Clock3,
   CalendarDays,
   CheckCircle2,
+  Eye,
 } from "lucide-react";
 
 import {
@@ -22,7 +23,11 @@ import {
   CartesianGrid,
 } from "recharts";
 
+import { useRouter } from "next/navigation";
+
 export default function ReportPage() {
+
+  const router = useRouter();
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -30,6 +35,8 @@ export default function ReportPage() {
   const [error, setError] = useState("");
 
   const [shipments, setShipments] = useState<any[]>([]);
+  const [completedPage, setCompletedPage] = useState(1);
+  const completedItemsPerPage = 10;
 
   // =====================================================
   // FORMAT DATE
@@ -121,20 +128,20 @@ export default function ReportPage() {
   const filteredShipments = Array.isArray(shipments)
     ? shipments.filter((shipment: any) => {
 
-      if (!shipment.shipment_date)
-        return false;
+        if (!shipment.shipment_date)
+          return false;
 
-      const shipmentDate =
-        getOnlyDate(
-          shipment.shipment_date
+        const shipmentDate =
+          getOnlyDate(
+            shipment.shipment_date
+          );
+
+        return (
+          shipmentDate >= startDate &&
+          shipmentDate <= endDate
         );
 
-      return (
-        shipmentDate >= startDate &&
-        shipmentDate <= endDate
-      );
-
-    })
+      })
     : [];
 
   // =====================================================
@@ -226,18 +233,6 @@ export default function ReportPage() {
     ).length;
 
   // =====================================================
-  // LANDED
-  // =====================================================
-
-  const landedCount =
-    filteredShipments.filter(
-      (shipment: any) =>
-        shipment.shipment_status ===
-        "Landed"
-    ).length;
-
-
-  // =====================================================
   // DELAYED
   // =====================================================
 
@@ -281,7 +276,7 @@ export default function ReportPage() {
     if (diff < 0) {
 
       setError(
-        "Tanggal akhir tidak boleh sebelum tanggal mulai"
+        "End date cannot be before start date"
       );
 
       return;
@@ -290,7 +285,7 @@ export default function ReportPage() {
     if (diff > 31) {
 
       setError(
-        "Maksimal filter hanya 31 hari"
+        "Maximum filter is only 31 days"
       );
 
       return;
@@ -301,15 +296,79 @@ export default function ReportPage() {
   };
 
   // =====================================================
+  // FORMAT SHIPMENT
+  // =====================================================
+
+  const formatShipment = (item: any) => ({
+    id: item.id,
+    awb: item.awb_number,
+    tanggal: new Date(item.shipment_date).toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }),
+    pengirim: item.sender_name,
+    penerima: item.receiver_name,
+    telepon: item.phone_number,
+    teleponPenerima: item.receiver_phone_number,
+    asal: item.origin_city,
+    tujuan: item.destination_city,
+    jenisBarang: item.item_type,
+    berat: item.weight,
+    harga: item.shipping_price,
+    kendaraan: item.vehicle_name,
+    jenisPengiriman: item.shipping_type,
+    flight: item.flight_number,
+    status: item.shipment_status,
+    deskripsi: item.item_description,
+    item_name: item.item_name,
+    quantity: item.quantity,
+    item_status: item.item_status,
+    admin_fee: item.admin_fee,
+    total_price: item.total_price,
+    payment_method: item.payment_method,
+    payment_date: item.payment_date,
+    transaction_status: item.transaction_status,
+  });
+
+  // =====================================================
+  // FILTER COMPLETED SHIPMENTS (Landed or Delivered)
+  // =====================================================
+
+  const completedShipments = filteredShipments
+    .filter((shipment: any) =>
+      shipment.shipment_status === "Landed" ||
+      shipment.shipment_status === "Delivered"
+    )
+    .map(formatShipment);
+
+  const completedTotalPages = Math.max(
+    1,
+    Math.ceil(completedShipments.length / completedItemsPerPage)
+  );
+
+  const completedStartIndex =
+    (completedPage - 1) * completedItemsPerPage;
+
+  const paginatedCompletedShipments = completedShipments.slice(
+    completedStartIndex,
+    completedStartIndex + completedItemsPerPage
+  );
+
+  useEffect(() => {
+    setCompletedPage(1);
+  }, [startDate, endDate, shipments]);
+
+  // =====================================================
   // EXPORT
   // =====================================================
 
   const exportPDF = () => {
-    alert("Export PDF berhasil!");
+    alert("PDF export successful!");
   };
 
   const exportExcel = () => {
-    alert("Export Excel berhasil!");
+    alert("Excel export successful!");
   };
 
   return (
@@ -325,7 +384,7 @@ export default function ReportPage() {
       </h1>
 
       <p className="text-gray-500 mb-6">
-        Analisa dan laporan pengiriman cargo
+        Cargo shipping analysis and reports
       </p>
 
       {/* ===================================================== */}
@@ -341,7 +400,7 @@ export default function ReportPage() {
             className="text-blue-700"
           />
 
-          Filter Periode
+          Filter Period
 
         </h2>
 
@@ -350,7 +409,7 @@ export default function ReportPage() {
           <div>
 
             <label className="text-sm text-gray-500">
-              Tanggal Mulai
+              Start Date
             </label>
 
             <input
@@ -369,7 +428,7 @@ export default function ReportPage() {
           <div>
 
             <label className="text-sm text-gray-500">
-              Tanggal Akhir
+              End Date
             </label>
 
             <input
@@ -389,7 +448,7 @@ export default function ReportPage() {
             onClick={applyFilter}
             className="h-11 bg-blue-700 text-white rounded-lg hover:bg-blue-800"
           >
-            Terapkan
+            Apply
           </button>
 
         </div>
@@ -408,7 +467,7 @@ export default function ReportPage() {
       {/* CARDS */}
       {/* ===================================================== */}
 
-      <div className="grid md:grid-cols-5 gap-4 mb-6">
+      <div className="grid md:grid-cols-3 gap-4 mb-6">
 
         {/* TOTAL */}
 
@@ -425,67 +484,13 @@ export default function ReportPage() {
             </h2>
 
             <p className="text-sm text-gray-400 mt-2">
-              seluruh shipment
+              all shipments
             </p>
 
           </div>
 
           <Package
             className="text-blue-600"
-            size={22}
-          />
-
-        </div>
-
-        {/* LANDED */}
-
-        <div className="bg-white p-5 rounded-xl shadow flex justify-between">
-
-          <div>
-
-            <p className="text-gray-500 text-sm">
-              Landed
-            </p>
-
-            <h2 className="text-3xl font-bold text-blue-600 mt-2">
-              {landedCount}
-            </h2>
-
-            <p className="text-sm text-gray-400 mt-2">
-              shipment telah tiba
-            </p>
-
-          </div>
-
-          <Package
-            className="text-blue-600"
-            size={22}
-          />
-
-        </div>
-
-        {/* DELIVERED */}
-
-        <div className="bg-white p-5 rounded-xl shadow flex justify-between">
-
-          <div>
-
-            <p className="text-gray-500 text-sm">
-              Delivered
-            </p>
-
-            <h2 className="text-3xl font-bold text-green-600 mt-2">
-              {deliveredCount}
-            </h2>
-
-            <p className="text-sm text-gray-400 mt-2">
-              shipment selesai
-            </p>
-
-          </div>
-
-          <CheckCircle2
-            className="text-green-600"
             size={22}
           />
 
@@ -506,7 +511,7 @@ export default function ReportPage() {
             </h2>
 
             <p className="text-sm text-gray-400 mt-2">
-              berdasarkan status landed
+              based on landed status
             </p>
 
           </div>
@@ -533,7 +538,7 @@ export default function ReportPage() {
             </h2>
 
             <p className="text-sm text-gray-400 mt-2">
-              berdasarkan flight delayed
+              based on delayed flights
             </p>
 
           </div>
@@ -554,7 +559,7 @@ export default function ReportPage() {
       <div className="bg-white p-6 rounded-xl shadow mb-6">
 
         <h2 className="font-semibold text-xl mb-4">
-          Trend Pengiriman Harian
+          Daily Shipping Trends
         </h2>
 
         <div className="overflow-x-auto">
@@ -612,6 +617,157 @@ export default function ReportPage() {
       </div>
 
       {/* ===================================================== */}
+      {/* SHIPMENT COMPLETED TABLE */}
+      {/* ===================================================== */}
+
+      <div className="bg-white p-6 rounded-xl shadow mb-6">
+
+        <h2 className="font-semibold text-xl mb-4">
+          Shipment Completed
+        </h2>
+
+        <div className="overflow-x-auto">
+
+          <table className="w-full text-sm">
+
+            <thead className="bg-gray-100 text-gray-500">
+
+              <tr>
+
+                <th className="p-3 text-left">AWB</th>
+
+                <th className="p-3 text-left">Date</th>
+
+                <th className="p-3 text-left">Sender</th>
+
+                <th className="p-3 text-left">Receiver</th>
+
+                <th className="p-3 text-left">Origin</th>
+
+                <th className="p-3 text-left">Destination</th>
+
+                <th className="p-3 text-left">Flight Number</th>
+
+                <th className="p-3 text-left text-center">Status</th>
+
+                <th className="p-3 text-left text-center">Actions</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {paginatedCompletedShipments.length > 0 ? (
+                paginatedCompletedShipments.map((s) => (
+                  <tr key={s.id} className="border-t">
+
+                    <td
+                      className="p-3 text-blue-700 font-semibold cursor-pointer hover:underline"
+                      onClick={() => router.push(`/admin/shipments/${s.awb}`)}
+                    >
+                      {s.awb}
+                    </td>
+
+                    <td className="p-3">{s.tanggal}</td>
+
+                    <td className="p-3">{s.pengirim}</td>
+
+                    <td className="p-3">{s.penerima}</td>
+
+                    <td className="p-3">{s.asal}</td>
+
+                    <td className="p-3">{s.tujuan}</td>
+
+                    <td className="p-3">{s.flight || "-"}</td>
+
+                    <td className="p-3 text-center">
+                      {s.status === "Delivered" && (
+                        <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs">
+                          Delivered
+                        </span>
+                      )}
+                      {s.status === "Landed" && (
+                        <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs">
+                          Landed
+                        </span>
+                      )}
+                    </td>
+
+                    <td className="p-3">
+
+                      <div className="flex items-center justify-center gap-3">
+
+                          <Eye
+                          className="text-blue-500 cursor-pointer hover:text-blue-700"
+                          size={18}
+                          onClick={() =>
+                            router.push(
+                              `/admin/shipments/${s.awb}`
+                            )
+                          }
+                        />
+
+                      </div>
+
+                    </td>
+
+                  </tr>
+                ))
+              ) : (
+                <tr>
+
+                  <td
+                    colSpan={9}
+                    className="p-6 text-center text-gray-500"
+                  >
+                    No completed shipments found in this period
+                  </td>
+
+                </tr>
+              )}
+
+            </tbody>
+          </table>
+
+        </div>
+
+        {completedShipments.length > 0 && (
+          <div className="flex items-center justify-center gap-2 mt-4">
+            <button
+              className={`px-3 py-1 border rounded ${completedPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100"}`}
+              disabled={completedPage === 1}
+              onClick={() => setCompletedPage((page) => Math.max(1, page - 1))}
+            >
+              Prev
+            </button>
+
+            {Array.from({ length: completedTotalPages }).map((_, i) => {
+              const page = i + 1;
+              return (
+                <button
+                  key={page}
+                  onClick={() => setCompletedPage(page)}
+                  className={`px-3 py-1 border rounded ${completedPage === page ? "bg-blue-600 text-white" : "hover:bg-gray-100"}`}
+                >
+                  {page}
+                </button>
+              );
+            })}
+
+            <button
+              className={`px-3 py-1 border rounded ${completedPage === completedTotalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100"}`}
+              disabled={completedPage === completedTotalPages}
+              onClick={() => setCompletedPage((page) => Math.min(completedTotalPages, page + 1))}
+            >
+              Next
+            </button>
+          </div>
+        )}
+
+      </div>
+
+      {/* ===================================================== */}
       {/* EXPORT */}
       {/* ===================================================== */}
 
@@ -629,7 +785,7 @@ export default function ReportPage() {
         </h2>
 
         <p className="text-gray-500 mb-5">
-          Download laporan shipment
+          Download shipment reports
         </p>
 
         <div className="flex gap-3 flex-wrap">

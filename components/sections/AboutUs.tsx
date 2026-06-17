@@ -18,13 +18,13 @@ export default function TentangKami() {
       {/* Content */}
       <div className="relative z-10 max-w-2xl px-6">
         <h2 className="text-3xl md:text-6xl font-bold mb-10">
-          Tentang Kami
+          About Us
         </h2>
 
         <p className="text-sm md:text-base">
-          ExpressAir adalah perusahaan logistik udara yang menyediakan
-          solusi pengiriman cepat, aman, dan terpercaya ke berbagai
-          destinasi domestik maupun internasional. Ini perjalanan kami dalam menjadi integrator logistik udara terkemuka di Indonesia.
+          ExpressAir is an air logistics company that provides fast, safe, and
+          reliable shipping solutions to various domestic and international destinations.
+          This is our journey to becoming a leading air cargo logistics integrator in Indonesia.
         </p>
       </div>
     </section>

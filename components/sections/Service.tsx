@@ -21,12 +21,12 @@ export default function LayananHero() {
       {/* Content */}
       <div className="relative z-10">
         <h2 className="text-3xl md:text-6xl font-bold text-white mb-8">
-          Layanan ExpressAir
+          ExpressAir Services
         </h2>
 
         <p className="text-white max-w-xl mx-auto">
-          Kami menyediakan berbagai layanan pengiriman udara yang cepat,
-          aman, dan terpercaya untuk memenuhi kebutuhan logistik Anda.
+          We provide various fast, safe, and reliable air delivery services
+          to meet your logistics needs.
         </p>
       </div>
     </section>
