@@ -207,6 +207,12 @@ export default function FlightsPageContent({ role }: { role: "admin" | "operator
     setIsCreateOpen(true);
   };
 
+  const [successModal, setSuccessModal] = useState({
+    open: false,
+    message: "",
+    flightNumber: "",
+  });
+
   // Submit Create
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -223,8 +229,14 @@ export default function FlightsPageContent({ role }: { role: "admin" | "operator
       if (!res.ok) throw new Error(result.error || "Gagal membuat flight");
 
       await loadFlights();
+
       setIsCreateOpen(false);
-      alert("Flight berhasil dibuat!");
+
+      setSuccessModal({
+        open: true,
+        message: "Flight created successfully.",
+        flightNumber: result.flight_number,
+      });
     } catch (error: any) {
       alert(error.message);
     }
@@ -265,8 +277,14 @@ export default function FlightsPageContent({ role }: { role: "admin" | "operator
       if (!res.ok) throw new Error(result.error || "Gagal memperbarui flight");
 
       await loadFlights();
+
       setEditFlight(null);
-      alert("Flight berhasil diperbarui!");
+
+      setSuccessModal({
+        open: true,
+        message: "Flight updated successfully.",
+        flightNumber: form.flight_number,
+      });
     } catch (error: any) {
       alert(error.message);
     }
@@ -284,9 +302,20 @@ export default function FlightsPageContent({ role }: { role: "admin" | "operator
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || "Gagal menghapus flight");
 
+      // await loadFlights();
+      // setDeleteFlight(null);
+      // alert("Flight berhasil dihapus!");
+      const deletedFlightNumber = deleteFlight.flight_number;
+
       await loadFlights();
+
       setDeleteFlight(null);
-      alert("Flight berhasil dihapus!");
+
+      setSuccessModal({
+        open: true,
+        message: "Flight deleted successfully.",
+        flightNumber: deletedFlightNumber,
+      });
     } catch (error: any) {
       alert(error.message);
     }
@@ -852,7 +881,7 @@ export default function FlightsPageContent({ role }: { role: "admin" | "operator
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Origin City / Airport</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Origin City</label>
                   <input
                     type="text"
                     className={`w-full border p-2 rounded-lg text-sm focus:outline-none focus:ring-1 ${
@@ -865,7 +894,7 @@ export default function FlightsPageContent({ role }: { role: "admin" | "operator
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Destination City / Airport</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Destination City</label>
                   <input
                     type="text"
                     className={`w-full border p-2 rounded-lg text-sm focus:outline-none focus:ring-1 ${
@@ -936,6 +965,48 @@ export default function FlightsPageContent({ role }: { role: "admin" | "operator
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* SUCCESS MODAL */}
+      {successModal.open && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[60]">
+          <div className="bg-white w-[400px] rounded-xl p-8 text-center shadow-lg relative">
+
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle
+                size={32}
+                className="text-green-600"
+                strokeWidth={3}
+              />
+            </div>
+
+            <h2 className="text-xl font-bold mb-4">
+              {successModal.message}
+            </h2>
+
+            <p className="text-gray-600 mb-1">
+              Flight Number:
+            </p>
+
+            <p className="text-2xl font-bold text-blue-700 mb-8">
+              {successModal.flightNumber}
+            </p>
+
+            <button
+              onClick={() =>
+                setSuccessModal({
+                  open: false,
+                  message: "",
+                  flightNumber: "",
+                })
+              }
+              className="bg-blue-600 text-white px-10 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
+            >
+              OK
+            </button>
+
           </div>
         </div>
       )}

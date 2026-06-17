@@ -1089,7 +1089,7 @@ export default function ShipmentsPage() {
                 <input
                   type="number"
                   readOnly
-                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.harga || hargaError ? 'border-red-500' : ''} cursor-not-allowed`}
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.harga || hargaError ? 'border-red-500' : ''} cursor-not-allowed bg-gray-100`}
                   value={form.harga}
                   onChange={(e) => {
                     const val = e.target.value;
@@ -1369,7 +1369,7 @@ export default function ShipmentsPage() {
                   type="number"
                   readOnly
                   value={editData.harga || ""}
-                  className="w-full border rounded-lg px-3 py-2 mt-1 bg-gray-100 cursor-not-allowed"
+                  className="w-full bg-gray-100 border rounded-lg px-3 py-2 mt-1 bg-gray-100 cursor-not-allowed"
                 />
                 {editErrors.harga && <p className="text-red-500 text-xs mt-1">{editErrors.harga}</p>}
               </div>

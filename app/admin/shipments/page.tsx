@@ -700,7 +700,7 @@ export default function ShipmentsPage() {
           <tbody>
             {paginatedData.map((s) => (
               <tr key={s.id} className="border-t">
-                <td className="p-3 text-blue-600">{s.awb}</td>
+                <td className="p-3 text-blueprimary font-semibold cursor-pointer hover:underline" onClick={() => router.push(`/admin/shipments/${s.awb}`)}>{s.awb}</td>
 
                 <td className="p-3">{s.tanggal}</td>
 
@@ -1091,7 +1091,7 @@ export default function ShipmentsPage() {
                 <input
                   type="number"
                   readOnly
-                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.harga || hargaError ? 'border-red-500' : ''} cursor-not-allowed`}
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.harga || hargaError ? 'border-red-500' : ''} cursor-not-allowed bg-gray-100`}
                   value={form.harga}
                   // onChange={(e) => {
                   //   const val = e.target.value;
