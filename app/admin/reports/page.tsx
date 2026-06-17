@@ -121,20 +121,20 @@ export default function ReportPage() {
   const filteredShipments = Array.isArray(shipments)
     ? shipments.filter((shipment: any) => {
 
-        if (!shipment.shipment_date)
-          return false;
+      if (!shipment.shipment_date)
+        return false;
 
-        const shipmentDate =
-          getOnlyDate(
-            shipment.shipment_date
-          );
-
-        return (
-          shipmentDate >= startDate &&
-          shipmentDate <= endDate
+      const shipmentDate =
+        getOnlyDate(
+          shipment.shipment_date
         );
 
-      })
+      return (
+        shipmentDate >= startDate &&
+        shipmentDate <= endDate
+      );
+
+    })
     : [];
 
   // =====================================================
@@ -224,6 +224,18 @@ export default function ReportPage() {
         shipment.shipment_status ===
         "Delivered"
     ).length;
+
+  // =====================================================
+  // LANDED
+  // =====================================================
+
+  const landedCount =
+    filteredShipments.filter(
+      (shipment: any) =>
+        shipment.shipment_status ===
+        "Landed"
+    ).length;
+
 
   // =====================================================
   // DELAYED
@@ -396,7 +408,7 @@ export default function ReportPage() {
       {/* CARDS */}
       {/* ===================================================== */}
 
-      <div className="grid md:grid-cols-3 gap-4 mb-6">
+      <div className="grid md:grid-cols-5 gap-4 mb-6">
 
         {/* TOTAL */}
 
@@ -420,6 +432,60 @@ export default function ReportPage() {
 
           <Package
             className="text-blue-600"
+            size={22}
+          />
+
+        </div>
+
+        {/* LANDED */}
+
+        <div className="bg-white p-5 rounded-xl shadow flex justify-between">
+
+          <div>
+
+            <p className="text-gray-500 text-sm">
+              Landed
+            </p>
+
+            <h2 className="text-3xl font-bold text-blue-600 mt-2">
+              {landedCount}
+            </h2>
+
+            <p className="text-sm text-gray-400 mt-2">
+              shipment telah tiba
+            </p>
+
+          </div>
+
+          <Package
+            className="text-blue-600"
+            size={22}
+          />
+
+        </div>
+
+        {/* DELIVERED */}
+
+        <div className="bg-white p-5 rounded-xl shadow flex justify-between">
+
+          <div>
+
+            <p className="text-gray-500 text-sm">
+              Delivered
+            </p>
+
+            <h2 className="text-3xl font-bold text-green-600 mt-2">
+              {deliveredCount}
+            </h2>
+
+            <p className="text-sm text-gray-400 mt-2">
+              shipment selesai
+            </p>
+
+          </div>
+
+          <CheckCircle2
+            className="text-green-600"
             size={22}
           />
 
