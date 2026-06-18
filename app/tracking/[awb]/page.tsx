@@ -41,6 +41,7 @@ export default function DetailShipment() {
 
   const [loading, setLoading] = useState(true);
   const [searchAwb, setSearchAwb] = useState("");
+  const [searchError, setSearchError] = useState("");
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
@@ -65,7 +66,11 @@ export default function DetailShipment() {
   }, [awb]);
 
   const handleSearch = () => {
-    if (!searchAwb.trim()) return;
+    if (!searchAwb.trim()) {
+      setSearchError("Please enter an AWB number.");
+      return;
+    }
+    setSearchError("");
     router.push(`/tracking/${searchAwb.trim()}`);
   };
 
@@ -96,13 +101,21 @@ export default function DetailShipment() {
               Airway Bill Number
             </p>
             <div className="flex gap-3">
-              <input
-                value={searchAwb}
-                onChange={(e) => setSearchAwb(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
-                placeholder="Enter AWB number (e.g. AWB00000001)"
-                className="flex-1 border border-gray-300 rounded-lg px-4 h-12 text-base outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
-              />
+              <div className="flex-1">
+                <input
+                  value={searchAwb}
+                  onChange={(e) => {
+                    setSearchAwb(e.target.value);
+                    if (searchError) setSearchError("");
+                  }}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
+                  placeholder="Enter AWB number (e.g. AWB00000001)"
+                  className="w-full border border-gray-300 rounded-lg px-4 h-12 text-base outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
+                />
+                {searchError && (
+                  <p className="text-red-600 text-sm mt-2">{searchError}</p>
+                )}
+              </div>
               <button
                 onClick={handleSearch}
                 className="bg-blue-700 hover:bg-blue-800 text-white rounded-lg px-8 font-semibold transition"
